@@ -12,6 +12,14 @@
 
 const unsigned short PRO_VERSION = 0x1354;
 
+// These colors were taken from Bootstrap CSS
+static const SColor SCOLOR_LIGHT_YELLOW = { 224,255,243,205 };
+static const SColor SCOLOR_DARK_YELLOW = { 224,204,154,6 };
+static const SColor SCOLOR_LIGHT_BLUE = { 224,207,226,255 };
+static const SColor SCOLOR_DARK_BLUE = { 224,13,110,253 };
+static const SColor SCOLOR_LIGHT_RED = { 224,248,215,218 };
+static const SColor SCOLOR_DARK_RED = { 224,220,53,69 };
+
 namespace ygo {
 
 Game* mainGame;
@@ -596,13 +604,13 @@ bool Game::Initialize() {
 	wCmdMenu->setDrawTitlebar(false);
 	wCmdMenu->setVisible(false);
 	wCmdMenu->getCloseButton()->setVisible(false);
-	btnActivate = env->addButton(rect<s32>(1, 1, 99, 21), wCmdMenu, BUTTON_CMD_ACTIVATE, dataManager.GetSysString(1150));
-	btnSummon = env->addButton(rect<s32>(1, 22, 99, 42), wCmdMenu, BUTTON_CMD_SUMMON, dataManager.GetSysString(1151));
-	btnSPSummon = env->addButton(rect<s32>(1, 43, 99, 63), wCmdMenu, BUTTON_CMD_SPSUMMON, dataManager.GetSysString(1152));
+	btnActivate = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(1, 1, 99, 21), wCmdMenu, BUTTON_CMD_ACTIVATE, dataManager.GetSysString(1150));
+	btnSummon = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(1, 22, 99, 42), wCmdMenu, BUTTON_CMD_SUMMON, dataManager.GetSysString(1151));
+	btnSPSummon = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(1, 43, 99, 63), wCmdMenu, BUTTON_CMD_SPSUMMON, dataManager.GetSysString(1152));
 	btnMSet = env->addButton(rect<s32>(1, 64, 99, 84), wCmdMenu, BUTTON_CMD_MSET, dataManager.GetSysString(1153));
 	btnSSet = env->addButton(rect<s32>(1, 85, 99, 105), wCmdMenu, BUTTON_CMD_SSET, dataManager.GetSysString(1153));
-	btnRepos = env->addButton(rect<s32>(1, 106, 99, 126), wCmdMenu, BUTTON_CMD_REPOS, dataManager.GetSysString(1154));
-	btnAttack = env->addButton(rect<s32>(1, 127, 99, 147), wCmdMenu, BUTTON_CMD_ATTACK, dataManager.GetSysString(1157));
+	btnRepos = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(1, 106, 99, 126), wCmdMenu, BUTTON_CMD_REPOS, dataManager.GetSysString(1154));
+	btnAttack = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(1, 127, 99, 147), wCmdMenu, BUTTON_CMD_ATTACK, dataManager.GetSysString(1157));
 	btnShowList = env->addButton(rect<s32>(1, 148, 99, 168), wCmdMenu, BUTTON_CMD_SHOWLIST, dataManager.GetSysString(1158));
 	btnOperation = env->addButton(rect<s32>(1, 169, 99, 189), wCmdMenu, BUTTON_CMD_ACTIVATE, dataManager.GetSysString(1161));
 	btnReset = env->addButton(rect<s32>(1, 190, 99, 210), wCmdMenu, BUTTON_CMD_RESET, dataManager.GetSysString(1162));
@@ -930,6 +938,16 @@ bool Game::Initialize() {
 		col.setAlpha(224);
 		env->getSkin()->setColor((EGUI_DEFAULT_COLOR)i, col);
 	}
+	btnActivate->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
+	btnActivate->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
+	btnSummon->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_BLUE);
+	btnSummon->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_BLUE);
+	btnSPSummon->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
+	btnSPSummon->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
+	btnAttack->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_BLUE);
+	btnAttack->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_BLUE);
+	btnRepos->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_BLUE);
+	btnRepos->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_BLUE);
 	dimension2du size = driver->getScreenSize();
 	if(window_size != size) {
 		window_size = size;

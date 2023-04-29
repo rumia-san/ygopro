@@ -9,6 +9,8 @@
 #include <vector>
 #include <list>
 
+#include "CGUISkinButton.h"
+
 namespace ygo {
 
 struct Config {
@@ -461,13 +463,13 @@ public:
 	irr::gui::IGUICheckBox* chkRace[25];
 	//cmd menu
 	irr::gui::IGUIWindow* wCmdMenu;
-	irr::gui::IGUIButton* btnActivate;
-	irr::gui::IGUIButton* btnSummon;
-	irr::gui::IGUIButton* btnSPSummon;
+	irr::gui::CGUISkinButton* btnActivate;
+	irr::gui::CGUISkinButton* btnSummon;
+	irr::gui::CGUISkinButton* btnSPSummon;
 	irr::gui::IGUIButton* btnMSet;
 	irr::gui::IGUIButton* btnSSet;
-	irr::gui::IGUIButton* btnRepos;
-	irr::gui::IGUIButton* btnAttack;
+	irr::gui::CGUISkinButton* btnRepos;
+	irr::gui::CGUISkinButton* btnAttack;
 	irr::gui::IGUIButton* btnShowList;
 	irr::gui::IGUIButton* btnOperation;
 	irr::gui::IGUIButton* btnReset;
