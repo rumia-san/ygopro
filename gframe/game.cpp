@@ -21,10 +21,7 @@ bool Game::Initialize() {
 	LoadConfig();
 	irr::SIrrlichtCreationParameters params = irr::SIrrlichtCreationParameters();
 	params.AntiAlias = gameConf.antialias;
-	if(gameConf.use_d3d)
-		params.DriverType = irr::video::EDT_DIRECT3D9;
-	else
-		params.DriverType = irr::video::EDT_OPENGL;
+	params.DriverType = irr::video::EDT_OPENGL;
 	params.WindowSize = irr::core::dimension2d<u32>(gameConf.window_width, gameConf.window_height);
 	device = irr::createDeviceEx(params);
 	if(!device) {

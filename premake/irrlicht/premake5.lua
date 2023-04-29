@@ -317,9 +317,7 @@ project "irrlicht"
             "source/Irrlicht/CGUIWindow.cpp" }
 
     filter { "system:windows" }
-        defines { "_IRR_WCHAR_FILESYSTEM" }
-        includedirs { "$(DXSDK_DIR)include" }
-        libdirs { "$(DXSDK_DIR)Lib/x86" }
+        defines { "_IRR_WCHAR_FILESYSTEM", "NO_IRR_COMPILE_WITH_DIRECT3D_9_", "NO_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_" }
         links { "imm32" }
 
     filter { "system:linux" }
