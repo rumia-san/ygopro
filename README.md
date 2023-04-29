@@ -1,6 +1,4 @@
-## YGOPro
-
- 
+## YGOPro-Rumia
 
 A script engine for "yu-gi-oh!" and sample gui
 

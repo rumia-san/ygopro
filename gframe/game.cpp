@@ -12,6 +12,11 @@
 
 const unsigned short PRO_VERSION = 0x1354;
 
+// Rumia Semantic Versioning
+constexpr int RUMIA_MAJOR_VERSION = 0;
+constexpr int RUMIA_MINOR_VERSION = 1;
+constexpr int RUMIA_PATCH_VERSION = 0;
+
 // These colors were taken from Bootstrap CSS
 static const SColor SCOLOR_LIGHT_YELLOW = { 224,255,243,205 };
 static const SColor SCOLOR_DARK_YELLOW = { 224,204,154,6 };
@@ -162,7 +167,8 @@ bool Game::Initialize() {
 	SetWindowsIcon();
 	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"YGOPro Version:%X.0%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+	myswprintf(strbuf, L"YGOPro-Rumia Version:%X.0%X.%X - R%d.%d.%d", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf,
+		RUMIA_MAJOR_VERSION, RUMIA_MINOR_VERSION, RUMIA_PATCH_VERSION);
 	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
 	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));

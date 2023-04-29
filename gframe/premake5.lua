@@ -7,6 +7,7 @@ project "YGOPro"
     files { "*.cpp", "*.h" }
     includedirs { "../ocgcore" }
     links { "ocgcore", "clzma", "cspmemvfs", LUA_LIB_NAME, "sqlite3", "irrlicht", "freetype", "event" }
+    targetname "YGOPro_rumia"
 
     if BUILD_IKPMP3 then
         links { "ikpmp3" }
