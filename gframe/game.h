@@ -589,6 +589,8 @@ public:
 	irr::gui::IGUIButton* btnBigCardZoomIn;
 	irr::gui::IGUIButton* btnBigCardZoomOut;
 	irr::gui::IGUIButton* btnBigCardClose;
+	irr::gui::IGUIButton* btnBigCardSearchName;
+	irr::gui::IGUIButton* btnBigCardSearchSet;
 };
 
 extern Game* mainGame;
@@ -801,6 +803,9 @@ extern Game* mainGame;
 #define BUTTON_BIG_CARD_ZOOM_IN		381
 #define BUTTON_BIG_CARD_ZOOM_OUT	382
 #define BUTTON_BIG_CARD_ORIG_SIZE	383
+
+#define BUTTON_BIG_CARD_SEARCH_NAME	384
+#define BUTTON_BIG_CARD_SEARCH_SET	385
 
 #define AVAIL_OCG					0x1
 #define AVAIL_TCG					0x2

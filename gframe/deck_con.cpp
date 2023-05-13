@@ -111,6 +111,8 @@ void DeckBuilder::Terminate() {
 	mainGame->btnBigCardZoomIn->setVisible(false);
 	mainGame->btnBigCardZoomOut->setVisible(false);
 	mainGame->btnBigCardClose->setVisible(false);
+	mainGame->btnBigCardSearchName->setVisible(false);
+	mainGame->btnBigCardSearchSet->setVisible(false);
 	mainGame->PopupElement(mainGame->wMainMenu);
 	mainGame->device->setEventReceiver(&mainGame->menuHandler);
 	mainGame->wACMessage->setVisible(false);
@@ -1688,6 +1690,8 @@ void DeckBuilder::ShowBigCard(int code, float zoom) {
 	mainGame->btnBigCardZoomIn->setVisible(true);
 	mainGame->btnBigCardZoomOut->setVisible(true);
 	mainGame->btnBigCardClose->setVisible(true);
+	mainGame->btnBigCardSearchName->setVisible(true);
+	mainGame->btnBigCardSearchSet->setVisible(true);
 	mainGame->ShowElement(mainGame->wBigCard);
 	mainGame->env->getRootGUIElement()->bringToFront(mainGame->wBigCard);
 	mainGame->gMutex.unlock();
@@ -1718,6 +1722,8 @@ void DeckBuilder::CloseBigCard() {
 	mainGame->btnBigCardZoomIn->setVisible(false);
 	mainGame->btnBigCardZoomOut->setVisible(false);
 	mainGame->btnBigCardClose->setVisible(false);
+	mainGame->btnBigCardSearchName->setVisible(false);
+	mainGame->btnBigCardSearchSet->setVisible(false);
 }
 
 static inline wchar_t NormalizeChar(wchar_t c) {
