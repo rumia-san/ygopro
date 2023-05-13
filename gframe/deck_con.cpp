@@ -689,6 +689,14 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				CloseBigCard();
 				break;
 			}
+			case BUTTON_BIG_CARD_SEARCH_NAME: {
+				SearchBigCardName();
+				break;
+			}
+			case BUTTON_BIG_CARD_SEARCH_SET: {
+				SearchBigCardSet();
+				break;
+			}
 			case BUTTON_MSG_OK: {
 				mainGame->HideElement(mainGame->wMessage);
 				mainGame->actionSignal.Set();
@@ -1724,6 +1732,69 @@ void DeckBuilder::CloseBigCard() {
 	mainGame->btnBigCardClose->setVisible(false);
 	mainGame->btnBigCardSearchName->setVisible(false);
 	mainGame->btnBigCardSearchSet->setVisible(false);
+}
+
+void DeckBuilder::SearchBigCardName()
+{
+	CardData cd{};
+	auto code = bigcard_code;
+	if (!dataManager.GetData(code, &cd)) {
+		memset(&cd, 0, sizeof(CardData));
+		return;
+	}
+	std::wstring cardName = dataManager.GetName(code);
+
+	// Set name and trigger search
+	mainGame->ebCardName->setText(cardName.c_str());
+	StartFilter();
+	if (!mainGame->gameConf.separate_clear_button)
+		ClearFilter();
+}
+
+std::wstring ReplaceString(std::wstring subject, const std::wstring& search, const std::wstring& replace) {
+	size_t pos = 0;
+	while ((pos = subject.find(search, pos)) != std::wstring::npos) {
+		subject.replace(pos, search.length(), replace);
+		pos += replace.length();
+	}
+	return subject;
+}
+
+void DeckBuilder::SearchBigCardSet()
+{
+	CardData cd{};
+	auto code = bigcard_code;
+	if (!dataManager.GetData(code, &cd)) {
+		memset(&cd, 0, sizeof(CardData));
+		return;
+	}
+
+	auto sc = cd.setcode;
+	std::wstring setName;
+	if (cd.alias) {
+		auto aptr = dataManager._datas.find(cd.alias);
+		if (aptr != dataManager._datas.end())
+			sc = aptr->second.setcode;
+	}
+	if (sc) {
+		setName = dataManager.FormatSetName(sc);
+		/*
+		* SetName should be something like "set1|set2"
+		* we replace the '|' with ' @'
+		* Then the setName become "set1 @set2"
+		* but we want "@set1 @set2"
+		* so we add a prefix '@' manually
+		*/
+		setName = L"@" + ReplaceString(setName, L"|", L" @");
+		mainGame->ebCardName->setText(setName.c_str());
+		StartFilter();
+		if (!mainGame->gameConf.separate_clear_button)
+			ClearFilter();
+	}
+	else {
+		// No set name, clear the search result
+		ClearSearch();
+	}
 }
 
 static inline wchar_t NormalizeChar(wchar_t c) {

@@ -30,6 +30,8 @@ public:
 	void ShowBigCard(int code, float zoom);
 	void ZoomBigCard(s32 centerx = -1, s32 centery = -1);
 	void CloseBigCard();
+	void SearchBigCardName();
+	void SearchBigCardSet();
 
 	bool CardNameContains(const wchar_t *haystack, const wchar_t *needle);
 
