@@ -14,7 +14,7 @@ const unsigned short PRO_VERSION = 0x1354;
 
 // Rumia Semantic Versioning
 constexpr int RUMIA_MAJOR_VERSION = 0;
-constexpr int RUMIA_MINOR_VERSION = 1;
+constexpr int RUMIA_MINOR_VERSION = 2;
 constexpr int RUMIA_PATCH_VERSION = 0;
 
 // These colors were taken from Bootstrap CSS

@@ -8,11 +8,22 @@ With some additional features! (Modified by Rumia <rumia-san@outlook.com> )
 
 ### Rumia added features
 
+#### Search card name and card set when constructing deck
+Now we could search the card name when constructing the deck!
+It would be more convenient to search related cards since we don't need to type the name manually.
+
+![search card button](./doc/button3.png)
+
 #### Colored buttons
+Buttons like "activate", "attack", etc. has been colored
+
 ![button](./doc/button1.png)
+
 ![button](./doc/button2.png)
 
 #### New settings
+Don't change music if LP goes done
+
 ![lpmusic_setting](./doc/setting1.png)
 
 ### Keys:
