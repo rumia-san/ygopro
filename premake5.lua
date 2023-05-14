@@ -191,7 +191,7 @@ workspace "YGOPro"
         targetdir "bin/debug"
 
     filter { "configurations:Release", "action:vs*" }
-        flags { "LinkTimeOptimization" }
+        flags { "LinkTimeOptimization", "MultiProcessorCompile" }
         staticruntime "On"
         disablewarnings { "4244", "4267", "4838", "4577", "4819", "4018", "4996", "4477", "4091", "4828", "4800", "6011", "6031", "6054", "6262" }
 
@@ -203,6 +203,7 @@ workspace "YGOPro"
         end
 
     filter { "configurations:Debug", "action:vs*" }
+	    flags { "MultiProcessorCompile" }
         disablewarnings { "4819", "4828", "6011", "6031", "6054", "6262" }
 
     filter "action:vs*"
