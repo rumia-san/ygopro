@@ -2414,6 +2414,9 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	case MSG_NEW_TURN: {
 		int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 		mainGame->dInfo.turn++;
+		// Turn info log
+		myswprintf(textBuffer, dataManager.GetSysString(2004), mainGame->dInfo.turn);
+		mainGame->AddLog(textBuffer);
 		if(!mainGame->dInfo.isTag && !mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
 			mainGame->btnLeaveGame->setText(dataManager.GetSysString(1351));
 			mainGame->btnLeaveGame->setVisible(true);
@@ -2788,13 +2791,17 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_SUMMONING: {
 		unsigned int code = (unsigned int)BufferIO::ReadInt32(pbuf);
-		/*int cc = */mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+		int cc = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 		/*int cl = */BufferIO::ReadInt8(pbuf);
 		/*int cs = */BufferIO::ReadInt8(pbuf);
 		/*int cp = */BufferIO::ReadInt8(pbuf);
 		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
 			soundManager.PlaySoundEffect(SOUND_SUMMON);
 			myswprintf(event_string, dataManager.GetSysString(1603), dataManager.GetName(code));
+			// log summon
+			auto controller = cc ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
+			myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+			mainGame->AddLog(textBuffer, code);
 			mainGame->showcardcode = code;
 			mainGame->showcarddif = 0;
 			mainGame->showcardp = 0;
@@ -2811,7 +2818,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_SPSUMMONING: {
 		unsigned int code = (unsigned int)BufferIO::ReadInt32(pbuf);
-		/*int cc = */mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
+		int cc = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 		/*int cl = */BufferIO::ReadInt8(pbuf);
 		/*int cs = */BufferIO::ReadInt8(pbuf);
 		/*int cp = */BufferIO::ReadInt8(pbuf);
@@ -2822,6 +2829,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			else
 				soundManager.PlaySoundEffect(SOUND_SPECIAL_SUMMON);
 			myswprintf(event_string, dataManager.GetSysString(1605), dataManager.GetName(code));
+			// log special summon
+			auto controller = cc ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
+			myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+			mainGame->AddLog(textBuffer, code);
 			mainGame->showcardcode = code;
 			mainGame->showcarddif = 1;
 			mainGame->showcard = 5;
@@ -2847,6 +2858,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
 			soundManager.PlaySoundEffect(SOUND_FILP);
 			myswprintf(event_string, dataManager.GetSysString(1607), dataManager.GetName(code));
+			// log flip summon
+			auto controller = cc ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
+			myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+			mainGame->AddLog(textBuffer, code);
 			mainGame->dField.MoveCard(pcard, 10);
 			mainGame->WaitFrameSignal(11);
 			mainGame->showcardcode = code;
@@ -2931,6 +2946,12 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->gMutex.lock();
 		mainGame->dField.chains.push_back(mainGame->dField.current_chain);
 		mainGame->gMutex.unlock();
+		// Chain info log
+		// controller 0 means ourside£¬1 means opponent
+		auto controller = mainGame->dField.current_chain.controler ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
+		const auto chain_number = mainGame->dField.chains.size();
+		myswprintf(textBuffer, dataManager.GetSysString(2003), chain_number, controller, event_string);
+		mainGame->AddLog(textBuffer, mainGame->dField.current_chain.code);
 		if (ct > 1)
 			mainGame->WaitFrameSignal(20);
 		mainGame->dField.last_chain = true;
@@ -3381,6 +3402,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			else
 				mainGame->atk_r = vector3df(0, 0, 3.1415926 - atan((xd - xa) / (yd - ya)));
 		}
+		// attack log
+		auto controller = ca ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
+		myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+		mainGame->AddLog(textBuffer, mainGame->dField.attacker->code);
 		matManager.GenArrow(sy);
 		mainGame->attack_sv = 0;
 		mainGame->is_attacking = true;
