@@ -5,7 +5,7 @@ namespace gui {
 
 CGUISkinButton* CGUISkinButton::addSkinButton(IGUIEnvironment* environment, const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, const wchar_t* text, const wchar_t* tooltiptext)
 {
-	CGUISkinButton* button = new CGUISkinButton(environment, parent, id, rectangle);
+	CGUISkinButton* button = new CGUISkinButton(environment, parent ? parent : environment->getRootGUIElement(), id, rectangle);
 	if (text)
 		button->setText(text);
 
