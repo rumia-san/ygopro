@@ -905,8 +905,8 @@ bool Game::Initialize() {
 	btnBigCardZoomIn = env->addButton(rect<s32>(205, 130, 295, 155), 0, BUTTON_BIG_CARD_ZOOM_IN, dataManager.GetSysString(1441));
 	btnBigCardZoomOut = env->addButton(rect<s32>(205, 160, 295, 185), 0, BUTTON_BIG_CARD_ZOOM_OUT, dataManager.GetSysString(1442));
 	btnBigCardClose = env->addButton(rect<s32>(205, 190, 295, 215), 0, BUTTON_BIG_CARD_CLOSE, dataManager.GetSysString(1440));
-	btnBigCardSearchName = env->addButton(rect<s32>(205, 220, 295, 245),0, BUTTON_BIG_CARD_SEARCH_NAME, dataManager.GetSysString(2001));
-	btnBigCardSearchSet = env->addButton(rect<s32>(205, 250, 295, 275), 0, BUTTON_BIG_CARD_SEARCH_SET, dataManager.GetSysString(2002));
+	btnBigCardSearchName = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(205, 220, 295, 245), 0, BUTTON_BIG_CARD_SEARCH_NAME, dataManager.GetSysString(2001));
+	btnBigCardSearchSet = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(205, 250, 295, 275), 0, BUTTON_BIG_CARD_SEARCH_SET, dataManager.GetSysString(2002));
 	btnBigCardOriginalSize->setVisible(false);
 	btnBigCardZoomIn->setVisible(false);
 	btnBigCardZoomOut->setVisible(false);
@@ -958,6 +958,10 @@ bool Game::Initialize() {
 	btnAttack->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_BLUE);
 	btnRepos->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_BLUE);
 	btnRepos->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_BLUE);
+	btnBigCardSearchName->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
+	btnBigCardSearchName->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
+	btnBigCardSearchSet->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
+	btnBigCardSearchSet->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
 	dimension2du size = driver->getScreenSize();
 	if(window_size != size) {
 		window_size = size;

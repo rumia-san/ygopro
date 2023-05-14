@@ -589,8 +589,8 @@ public:
 	irr::gui::IGUIButton* btnBigCardZoomIn;
 	irr::gui::IGUIButton* btnBigCardZoomOut;
 	irr::gui::IGUIButton* btnBigCardClose;
-	irr::gui::IGUIButton* btnBigCardSearchName;
-	irr::gui::IGUIButton* btnBigCardSearchSet;
+	irr::gui::CGUISkinButton* btnBigCardSearchName;
+	irr::gui::CGUISkinButton* btnBigCardSearchSet;
 };
 
 extern Game* mainGame;
