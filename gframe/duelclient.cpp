@@ -2414,9 +2414,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	case MSG_NEW_TURN: {
 		int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 		mainGame->dInfo.turn++;
-		// Turn info log
-		myswprintf(textBuffer, dataManager.GetSysString(2004), mainGame->dInfo.turn);
-		mainGame->AddLog(textBuffer);
 		if(!mainGame->dInfo.isTag && !mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
 			mainGame->btnLeaveGame->setText(dataManager.GetSysString(1351));
 			mainGame->btnLeaveGame->setVisible(true);
@@ -2449,6 +2446,9 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->showcard = 101;
 			mainGame->WaitFrameSignal(40);
 			mainGame->showcard = 0;
+			// Turn info log
+			myswprintf(textBuffer, dataManager.GetSysString(2004), mainGame->dInfo.turn);
+			mainGame->AddLog(textBuffer);
 		}
 		return true;
 	}
@@ -2996,10 +2996,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->showcard = 3;
 			mainGame->WaitFrameSignal(30);
 			mainGame->showcard = 0;
+			// log negated
+			myswprintf(textBuffer, dataManager.GetSysString(2005), dataManager.GetName(mainGame->showcardcode));
+			mainGame->AddLog(textBuffer, mainGame->showcardcode);
 		}
-		// log negated
-		myswprintf(textBuffer, dataManager.GetSysString(2005), dataManager.GetName(mainGame->showcardcode));
-		mainGame->AddLog(textBuffer, mainGame->showcardcode);
 		return true;
 	}
 	case MSG_CARD_SELECTED: {
