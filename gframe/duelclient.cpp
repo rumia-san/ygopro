@@ -2997,6 +2997,9 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->WaitFrameSignal(30);
 			mainGame->showcard = 0;
 		}
+		// log negated
+		myswprintf(textBuffer, dataManager.GetSysString(2005), dataManager.GetName(mainGame->showcardcode));
+		mainGame->AddLog(textBuffer, mainGame->showcardcode);
 		return true;
 	}
 	case MSG_CARD_SELECTED: {
