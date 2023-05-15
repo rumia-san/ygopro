@@ -2800,7 +2800,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			myswprintf(event_string, dataManager.GetSysString(1603), dataManager.GetName(code));
 			// log summon
 			auto controller = cc ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
-			myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+			myswprintf(textBuffer, L"%ls%ls", controller, event_string);
 			mainGame->AddLog(textBuffer, code);
 			mainGame->showcardcode = code;
 			mainGame->showcarddif = 0;
@@ -2831,7 +2831,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			myswprintf(event_string, dataManager.GetSysString(1605), dataManager.GetName(code));
 			// log special summon
 			auto controller = cc ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
-			myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+			myswprintf(textBuffer, L"%ls%ls", controller, event_string);
 			mainGame->AddLog(textBuffer, code);
 			mainGame->showcardcode = code;
 			mainGame->showcarddif = 1;
@@ -2860,7 +2860,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			myswprintf(event_string, dataManager.GetSysString(1607), dataManager.GetName(code));
 			// log flip summon
 			auto controller = cc ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
-			myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+			myswprintf(textBuffer, L"%ls%ls", controller, event_string);
 			mainGame->AddLog(textBuffer, code);
 			mainGame->dField.MoveCard(pcard, 10);
 			mainGame->WaitFrameSignal(11);
@@ -2947,7 +2947,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->dField.chains.push_back(mainGame->dField.current_chain);
 		mainGame->gMutex.unlock();
 		// Chain info log
-		// controller 0 means ourside£¬1 means opponent
+		// controller 0 means ourside, 1 means opponent
 		auto controller = mainGame->dField.current_chain.controler ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
 		const auto chain_number = mainGame->dField.chains.size();
 		myswprintf(textBuffer, dataManager.GetSysString(2003), chain_number, controller, event_string);
@@ -3404,7 +3404,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		}
 		// attack log
 		auto controller = ca ? dataManager.GetSysString(103) : dataManager.GetSysString(102);
-		myswprintf(textBuffer, dataManager.GetSysString(2005), controller, event_string);
+		myswprintf(textBuffer, L"%ls%ls", controller, event_string);
 		mainGame->AddLog(textBuffer, mainGame->dField.attacker->code);
 		matManager.GenArrow(sy);
 		mainGame->attack_sv = 0;
