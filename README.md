@@ -8,6 +8,12 @@ With some additional features! (Modified by Rumia <rumia-san@outlook.com> )
 
 ### Rumia added features
 
+#### Log more useful messages
+
+SP summon, attack, negate, activate cards, etc. will be logged
+
+![log](./doc/log1.png)
+
 #### Search card name and card set when constructing deck
 Now we could search the card name when constructing the deck!
 It would be more convenient to search related cards since we don't need to type the name manually.
