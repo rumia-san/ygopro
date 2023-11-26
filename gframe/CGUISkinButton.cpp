@@ -3,6 +3,7 @@
 namespace irr {
 namespace gui {
 
+// We implement the function here because CGUIEnvironment::addButton is a part of irrlicht
 CGUISkinButton* CGUISkinButton::addSkinButton(IGUIEnvironment* environment, const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, const wchar_t* text, const wchar_t* tooltiptext)
 {
 	CGUISkinButton* button = new CGUISkinButton(environment, parent ? parent : environment->getRootGUIElement(), id, rectangle);
@@ -12,8 +13,7 @@ CGUISkinButton* CGUISkinButton::addSkinButton(IGUIEnvironment* environment, cons
 	if (tooltiptext)
 		button->setToolTipText(tooltiptext);
 
-	if (parent)
-		button->drop(); // The parent will add a reference count (take the ownership).
+	button->drop(); // The parent will add a reference count (take the ownership).
 	return button;
 }
 
