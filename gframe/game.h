@@ -10,6 +10,14 @@
 #include <list>
 
 #include "CGUISkinButton.h"
+#include "CGUISkinWindow.h"
+
+extern const SColor SCOLOR_LIGHT_YELLOW;
+extern const SColor SCOLOR_DARK_YELLOW;
+extern const SColor SCOLOR_LIGHT_BLUE;
+extern const SColor SCOLOR_DARK_BLUE;
+extern const SColor SCOLOR_LIGHT_RED;
+extern const SColor SCOLOR_DARK_RED;
 
 namespace ygo {
 
@@ -412,7 +420,7 @@ public:
 	irr::gui::IGUIWindow* wACMessage;
 	irr::gui::IGUIStaticText* stACMessage;
 	//yes/no
-	irr::gui::IGUIWindow* wQuery;
+	irr::gui::CGUITempColorWindow* wQuery;
 	irr::gui::IGUIStaticText* stQMessage;
 	irr::gui::CGUISkinButton* btnYes;
 	irr::gui::IGUIButton* btnNo;

@@ -496,7 +496,7 @@ bool Game::Initialize() {
 	stACMessage->setBackgroundColor(0xc0c0c0ff);
 	stACMessage->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	//yes/no (310)
-	wQuery = env->addWindow(rect<s32>(490, 200, 840, 340), false, dataManager.GetSysString(560));
+	wQuery = CGUITempColorWindow::addTempColorWindow(env, rect<s32>(490, 200, 840, 340), dataManager.GetSysString(560));
 	wQuery->getCloseButton()->setVisible(false);
 	wQuery->setVisible(false);
 	stQMessage =  env->addStaticText(L"", rect<s32>(20, 20, 350, 100), false, true, wQuery, -1, false);
@@ -951,6 +951,7 @@ bool Game::Initialize() {
 		col.setAlpha(224);
 		env->getSkin()->setColor((EGUI_DEFAULT_COLOR)i, col);
 	}
+	wQuery->setSkinTransparency(224);
 	btnYes->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
 	btnYes->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
 	btnActivate->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
