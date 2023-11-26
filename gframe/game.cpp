@@ -14,8 +14,8 @@ const unsigned short PRO_VERSION = 0x1360;
 
 // Rumia Semantic Versioning
 constexpr int RUMIA_MAJOR_VERSION = 0;
-constexpr int RUMIA_MINOR_VERSION = 3;
-constexpr int RUMIA_PATCH_VERSION = 3;
+constexpr int RUMIA_MINOR_VERSION = 4;
+constexpr int RUMIA_PATCH_VERSION = 0;
 
 // These colors were taken from Bootstrap CSS
 static const SColor SCOLOR_LIGHT_YELLOW = { 224,255,243,205 };
