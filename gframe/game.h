@@ -414,7 +414,7 @@ public:
 	//yes/no
 	irr::gui::IGUIWindow* wQuery;
 	irr::gui::IGUIStaticText* stQMessage;
-	irr::gui::IGUIButton* btnYes;
+	irr::gui::CGUISkinButton* btnYes;
 	irr::gui::IGUIButton* btnNo;
 	//surrender yes/no
 	irr::gui::IGUIWindow* wSurrender;

@@ -501,7 +501,7 @@ bool Game::Initialize() {
 	wQuery->setVisible(false);
 	stQMessage =  env->addStaticText(L"", rect<s32>(20, 20, 350, 100), false, true, wQuery, -1, false);
 	stQMessage->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
-	btnYes = env->addButton(rect<s32>(100, 105, 150, 130), wQuery, BUTTON_YES, dataManager.GetSysString(1213));
+	btnYes = irr::gui::CGUISkinButton::addSkinButton(env, rect<s32>(100, 105, 150, 130), wQuery, BUTTON_YES, dataManager.GetSysString(1213));
 	btnNo = env->addButton(rect<s32>(200, 105, 250, 130), wQuery, BUTTON_NO, dataManager.GetSysString(1214));
 	//surrender yes/no (310)
 	wSurrender = env->addWindow(rect<s32>(490, 200, 840, 340), false, dataManager.GetSysString(560));
@@ -951,6 +951,8 @@ bool Game::Initialize() {
 		col.setAlpha(224);
 		env->getSkin()->setColor((EGUI_DEFAULT_COLOR)i, col);
 	}
+	btnYes->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
+	btnYes->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
 	btnActivate->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_YELLOW);
 	btnActivate->getSkin()->setColor(EGDC_3D_DARK_SHADOW, SCOLOR_DARK_YELLOW);
 	btnSummon->getSkin()->setColor(EGDC_3D_FACE, SCOLOR_LIGHT_BLUE);
