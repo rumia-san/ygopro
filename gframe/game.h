@@ -9,8 +9,10 @@
 #include <vector>
 #include <list>
 
-#include "CGUISkinButton.h"
-#include "CGUISkinWindow.h"
+#include "CustomGUI/CGUISkinButton.h"
+#include "CustomGUI/CGUISkinWindow.h"
+
+namespace ygo {
 
 extern const SColor SCOLOR_LIGHT_YELLOW;
 extern const SColor SCOLOR_DARK_YELLOW;
@@ -18,8 +20,6 @@ extern const SColor SCOLOR_LIGHT_BLUE;
 extern const SColor SCOLOR_DARK_BLUE;
 extern const SColor SCOLOR_LIGHT_RED;
 extern const SColor SCOLOR_DARK_RED;
-
-namespace ygo {
 
 struct Config {
 	bool use_d3d;

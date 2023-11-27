@@ -17,6 +17,8 @@ constexpr int RUMIA_MAJOR_VERSION = 0;
 constexpr int RUMIA_MINOR_VERSION = 4;
 constexpr int RUMIA_PATCH_VERSION = 0;
 
+namespace ygo {
+
 // These colors were taken from Bootstrap CSS
 static const SColor SCOLOR_LIGHT_YELLOW = { 224,255,243,205 };
 static const SColor SCOLOR_DARK_YELLOW = { 224,204,154,6 };
@@ -24,8 +26,6 @@ static const SColor SCOLOR_LIGHT_BLUE = { 224,207,226,255 };
 static const SColor SCOLOR_DARK_BLUE = { 224,13,110,253 };
 static const SColor SCOLOR_LIGHT_RED = { 224,248,215,218 };
 static const SColor SCOLOR_DARK_RED = { 224,220,53,69 };
-
-namespace ygo {
 
 Game* mainGame;
 

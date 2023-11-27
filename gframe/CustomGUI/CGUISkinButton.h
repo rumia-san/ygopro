@@ -8,7 +8,7 @@
 */
 
 #include <irrlicht.h>
-#include "CGUIButton.h"
+#include "../CGUIButton.h"
 namespace irr {
 namespace gui {
 
