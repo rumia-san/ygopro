@@ -8,6 +8,12 @@ With some additional features! (Modified by Rumia <rumia-san@outlook.com> )
 
 ### Rumia added features
 
+#### Colored windows
+
+The window "Trigger Effect" has been colored
+
+![window](./doc/window1.png)
+
 #### Log more useful messages
 
 SP summon, attack, negate, activate cards, etc. will be logged
