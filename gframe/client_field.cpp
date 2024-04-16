@@ -11,31 +11,50 @@
 namespace ygo {
 
 ClientField::ClientField() {
-	panel = 0;
-	hovered_card = 0;
-	clicked_card = 0;
-	highlighting_card = 0;
-	menu_card = 0;
-	hovered_controler = 0;
-	hovered_location = 0;
-	hovered_sequence = 0;
-	selectable_field = 0;
-	selected_field = 0;
-	deck_act = false;
-	grave_act = false;
-	remove_act = false;
-	extra_act = false;
-	pzone_act[0] = false;
-	pzone_act[1] = false;
-	conti_act = false;
-	deck_reversed = false;
-	conti_selecting = false;
-	cant_check_grave = false;
 	for(int p = 0; p < 2; ++p) {
 		mzone[p].resize(7, 0);
 		szone[p].resize(8, 0);
 	}
-	rnd.reset(std::random_device()());
+	rnd.reset((uint_fast32_t)std::random_device()());
+}
+ClientField::~ClientField() {
+	for (int i = 0; i < 2; ++i) {
+		for (auto& card : deck[i]) {
+			delete card;
+		}
+		deck[i].clear();
+		for (auto& card : hand[i]) {
+			delete card;
+		}
+		hand[i].clear();
+		for (auto& card : mzone[i]) {
+			if (card)
+				delete card;
+			card = nullptr;
+		}
+		for (auto& card : szone[i]) {
+			if (card)
+				delete card;
+			card = nullptr;
+		}
+		for (auto& card : grave[i]) {
+			delete card;
+		}
+		grave[i].clear();
+		for (auto& card : remove[i]) {
+			delete card;
+		}
+		remove[i].clear();
+
+		for (auto& card : extra[i]) {
+			delete card;
+		}
+		extra[i].clear();
+	}
+	for (auto& card : overlay_cards) {
+		delete card;
+	}
+	overlay_cards.clear();
 }
 void ClientField::Clear() {
 	for(int i = 0; i < 2; ++i) {
@@ -303,12 +322,13 @@ ClientCard* ClientField::RemoveCard(int controler, int location, int sequence) {
 	pcard->location = 0;
 	return pcard;
 }
-void ClientField::UpdateCard(int controler, int location, int sequence, char* data) {
+void ClientField::UpdateCard(int controler, int location, int sequence, unsigned char* data) {
 	ClientCard* pcard = GetCard(controler, location, sequence);
-	if(pcard)
-		pcard->UpdateInfo(data + 4);
+	int len = BufferIO::ReadInt32(data);
+	if (pcard && len > LEN_HEADER)
+		pcard->UpdateInfo(data);
 }
-void ClientField::UpdateFieldCard(int controler, int location, char* data) {
+void ClientField::UpdateFieldCard(int controler, int location, unsigned char* data) {
 	std::vector<ClientCard*>* lst = 0;
 	switch(location) {
 	case LOCATION_DECK:
@@ -338,7 +358,7 @@ void ClientField::UpdateFieldCard(int controler, int location, char* data) {
 	int len;
 	for(auto cit = lst->begin(); cit != lst->end(); ++cit) {
 		len = BufferIO::ReadInt32(data);
-		if(len > 8)
+		if(len > LEN_HEADER)
 			(*cit)->UpdateInfo(data);
 		data += len - 4;
 	}
@@ -595,11 +615,11 @@ void ClientField::ShowLocationCard() {
 				mainGame->stDisplayPos[i]->setBackgroundColor(0xffffffff);
 		} else if(display_cards[i]->location == LOCATION_EXTRA || display_cards[i]->location == LOCATION_REMOVED) {
 			if(display_cards[i]->position & POS_FACEDOWN)
-				mainGame->stCardPos[i]->setOverrideColor(0xff0000ff);
+				mainGame->stDisplayPos[i]->setOverrideColor(0xff0000ff);
 			if(display_cards[i]->controler)
-				mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
-			else 
-				mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
+				mainGame->stDisplayPos[i]->setBackgroundColor(0xffd0d0d0);
+			else
+				mainGame->stDisplayPos[i]->setBackgroundColor(0xffffffff);
 		} else {
 			if(display_cards[i]->controler)
 				mainGame->stDisplayPos[i]->setBackgroundColor(0xffd0d0d0);
@@ -1469,15 +1489,7 @@ static bool is_declarable(T const& cd, const std::vector<int>& opcode) {
 			if (stack.size() >= 1) {
 				int set_code = stack.top();
 				stack.pop();
-				unsigned long long sc = cd.setcode;
-				bool res = false;
-				int settype = set_code & 0xfff;
-				int setsubtype = set_code & 0xf000;
-				while (sc) {
-					if ((sc & 0xfff) == settype && (sc & 0xf000 & setsubtype) == setsubtype)
-						res = true;
-					sc = sc >> 16;
-				}
+				bool res = cd.is_setcode(set_code);
 				stack.push(res);
 			}
 			break;
@@ -1535,9 +1547,11 @@ void ClientField::UpdateDeclarableList() {
 	}
 	mainGame->lstANCard->clear();
 	ancard.clear();
-	for(auto cit = dataManager._strings.begin(); cit != dataManager._strings.end(); ++cit) {
+	for(auto cit = dataManager.strings_begin; cit != dataManager.strings_end; ++cit) {
 		if(cit->second.name.find(pname) != std::wstring::npos) {
-			auto cp = dataManager.GetCodePointer(cit->first);	//verified by _strings
+			auto cp = dataManager.GetCodePointer(cit->first);
+			if (cp == dataManager.datas_end)
+				continue;
 			//datas.alias can be double card names or alias
 			if(is_declarable(cp->second, declare_opcodes)) {
 				if(pname == cit->second.name || trycode == cit->first) { //exact match or last used
