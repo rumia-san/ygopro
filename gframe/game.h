@@ -75,6 +75,9 @@ struct Config {
 	int window_width{ 1024 };
 	int window_height{ 640 };
 	bool resize_popup_menu{ false };
+
+	//rumia added config
+	bool music_lp_mode{ true };
 };
 
 struct DuelInfo {

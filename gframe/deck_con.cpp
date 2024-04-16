@@ -1749,13 +1749,12 @@ void DeckBuilder::SearchBigCardSet()
 	if (!dataManager.GetData(bigcard_code, &cd))
 		return;
 
-	auto sc = cd.setcode;
-	if (cd.alias) {
-		auto aptr = dataManager._datas.find(cd.alias);
-		if (aptr != dataManager._datas.end())
-			sc = aptr->second.setcode;
+	const uint16_t* setcode = cd.setcode;
+	if (cd.alias && dataManager.GetCodePointer(cd.alias) != dataManager.datas_end) {
+		auto target = dataManager.GetCodePointer(cd.alias);
+		setcode = target->second.setcode;
 	}
-	if (!sc)
+	if (!setcode)
 		return;
 
 	/*
@@ -1767,7 +1766,7 @@ void DeckBuilder::SearchBigCardSet()
 	* This is a poor implementation :(
 	* But it is fine since the set name should be small :)
 	*/
-	std::wstring setName = L"@" + ReplaceString(dataManager.FormatSetName(sc), L"|", L" @");
+	std::wstring setName = L"@" + ReplaceString(dataManager.FormatSetName(setcode), L"|", L" @");
 	// Set name and trigger search
 	mainGame->ebCardName->setText(setName.c_str());
 	StartFilter();
