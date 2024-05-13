@@ -96,6 +96,7 @@ void DeckBuilder::Terminate() {
 	mainGame->btnBigCardClose->setVisible(false);
 	mainGame->btnBigCardSearchName->setVisible(false);
 	mainGame->btnBigCardSearchSet->setVisible(false);
+	mainGame->ResizeChatInputWindow();
 	mainGame->PopupElement(mainGame->wMainMenu);
 	mainGame->device->setEventReceiver(&mainGame->menuHandler);
 	mainGame->wACMessage->setVisible(false);
