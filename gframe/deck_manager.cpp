@@ -35,7 +35,7 @@ void DeckManager::LoadLFListSingle(const char* path) {
 			int count = -1;
 			if (sscanf(linebuf, "%d %d", &code, &count) != 2)
 				continue;
-			if (code <= 0 || code > 99999999)
+			if (code <= 0 || code > 0xfffffff)
 				continue;
 			if (count < 0 || count > 2)
 				continue;
@@ -86,11 +86,11 @@ int DeckManager::CheckDeck(Deck& deck, int lfhash, int rule) {
 	if(!list)
 		return 0;
 	int dc = 0;
-	if(deck.main.size() < 40 || deck.main.size() > 60)
+	if(deck.main.size() < DECK_MIN_SIZE || deck.main.size() > DECK_MAX_SIZE)
 		return (DECKERROR_MAINCOUNT << 28) + deck.main.size();
-	if(deck.extra.size() > 15)
+	if(deck.extra.size() > EXTRA_MAX_SIZE)
 		return (DECKERROR_EXTRACOUNT << 28) + deck.extra.size();
-	if(deck.side.size() > 15)
+	if(deck.side.size() > SIDE_MAX_SIZE)
 		return (DECKERROR_SIDECOUNT << 28) + deck.side.size();
 	const int rule_map[6] = { AVAIL_OCG, AVAIL_TCG, AVAIL_SC, AVAIL_CUSTOM, AVAIL_OCGTCG, 0 };
 	int avail = rule_map[rule];
@@ -158,10 +158,10 @@ int DeckManager::LoadDeck(Deck& deck, int* dbuf, int mainc, int sidec, bool is_p
 			continue;
 		}
 		else if(cd.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)) {
-			if(deck.extra.size() >= 15)
+			if(deck.extra.size() >= EXTRA_MAX_SIZE)
 				continue;
 			deck.extra.push_back(dataManager.GetCodePointer(code));
-		} else if(deck.main.size() < 60) {
+		} else if(deck.main.size() < DECK_MAX_SIZE) {
 			deck.main.push_back(dataManager.GetCodePointer(code));
 		}
 	}
@@ -173,7 +173,7 @@ int DeckManager::LoadDeck(Deck& deck, int* dbuf, int mainc, int sidec, bool is_p
 		}
 		if(cd.type & TYPE_TOKEN)
 			continue;
-		if(deck.side.size() < 15)
+		if(deck.side.size() < SIDE_MAX_SIZE)
 			deck.side.push_back(dataManager.GetCodePointer(code));
 	}
 	return errorcode;
@@ -242,11 +242,15 @@ bool DeckManager::LoadDeck(irr::gui::IGUIComboBox* cbCategory, irr::gui::IGUICom
 	bool res = LoadDeck(filepath, is_packlist);
 	if(res && mainGame->is_building)
 		mainGame->deckBuilder.RefreshPackListScroll();
+	if (!res)
+		current_deck.clear();
 	return res;
 }
 FILE* DeckManager::OpenDeckFile(const wchar_t* file, const char* mode) {
 #ifdef WIN32
-	FILE* fp = _wfopen(file, (wchar_t*)mode);
+	wchar_t wmode[20]{};
+	BufferIO::CopyWStr(mode, wmode, sizeof(wmode) / sizeof(wchar_t));
+	FILE* fp = _wfopen(file, wmode);
 #else
 	char file2[256];
 	BufferIO::EncodeUTF8(file, file2);
@@ -278,8 +282,8 @@ bool DeckManager::LoadDeck(const wchar_t* file, bool is_packlist) {
 	}
 	if(!reader)
 		return false;
-	size_t size = reader->getSize();
-	if(size >= 0x20000) {
+	auto size = reader->getSize();
+	if(size >= (int)sizeof deckBuffer) {
 		reader->drop();
 		return false;
 	}
@@ -294,7 +298,7 @@ bool DeckManager::LoadDeck(std::istringstream* deckStream, bool is_packlist) {
 	int cardlist[300];
 	bool is_side = false;
 	std::string linebuf;
-	while(std::getline(*deckStream, linebuf) && ct < 300) {
+	while(std::getline(*deckStream, linebuf, '\n') && ct < 300) {
 		if(linebuf[0] == '!') {
 			is_side = true;
 			continue;

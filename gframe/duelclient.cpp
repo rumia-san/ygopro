@@ -19,7 +19,6 @@ unsigned char DuelClient::selftype = 0;
 bool DuelClient::is_host = false;
 event_base* DuelClient::client_base = 0;
 bufferevent* DuelClient::client_bev = 0;
-unsigned char DuelClient::duel_client_read[SIZE_NETWORK_BUFFER];
 unsigned char DuelClient::duel_client_write[SIZE_NETWORK_BUFFER];
 bool DuelClient::is_closing = false;
 bool DuelClient::is_swapping = false;
@@ -49,6 +48,7 @@ bool DuelClient::StartClient(unsigned int ip, unsigned short port, bool create_g
 	sin.sin_addr.s_addr = htonl(ip);
 	sin.sin_port = htons(port);
 	client_bev = bufferevent_socket_new(client_base, -1, BEV_OPT_CLOSE_ON_FREE);
+	bufferevent_setwatermark(client_bev, EV_READ, 3, 0);
 	bufferevent_setcb(client_bev, ClientRead, NULL, ClientEvent, (void*)create_game);
 	if (bufferevent_socket_connect(client_bev, (sockaddr*)&sin, sizeof(sin)) < 0) {
 		bufferevent_free(client_bev);
@@ -98,19 +98,24 @@ void DuelClient::StopClient(bool is_exiting) {
 }
 void DuelClient::ClientRead(bufferevent* bev, void* ctx) {
 	evbuffer* input = bufferevent_get_input(bev);
-	size_t len = evbuffer_get_length(input);
-	unsigned short packet_len = 0;
-	while(true) {
-		if(len < 2)
+	int len = evbuffer_get_length(input);
+	unsigned char* duel_client_read = new unsigned char[std::min(len, SIZE_NETWORK_BUFFER)];
+	unsigned short packet_len;
+	while (len >= 2) {
+		evbuffer_copyout(input, &packet_len, sizeof packet_len);
+		if (packet_len + 2 > SIZE_NETWORK_BUFFER) {
+			delete[] duel_client_read;
+			ClientEvent(bev, BEV_EVENT_ERROR, 0);
 			return;
-		evbuffer_copyout(input, &packet_len, 2);
-		if(len < (size_t)packet_len + 2)
-			return;
-		evbuffer_remove(input, duel_client_read, packet_len + 2);
-		if(packet_len)
-			HandleSTOCPacketLan(&duel_client_read[2], packet_len);
+		}
+		if (len < packet_len + 2)
+			break;
+		int read_len = evbuffer_remove(input, duel_client_read, packet_len + 2);
+		if (read_len >= 3)
+			HandleSTOCPacketLan(&duel_client_read[2], read_len - 2);
 		len -= packet_len + 2;
 	}
+	delete[] duel_client_read;
 }
 void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 	if (events & BEV_EVENT_CONNECTED) {
@@ -235,16 +240,22 @@ int DuelClient::ClientThread() {
 	connect_state = 0;
 	return 0;
 }
-void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
+void DuelClient::HandleSTOCPacketLan(unsigned char* data, int len) {
 	unsigned char* pdata = data;
 	unsigned char pktType = BufferIO::ReadUInt8(pdata);
 	switch(pktType) {
 	case STOC_GAME_MSG: {
+		if (len < 1 + (int)sizeof(unsigned char))
+			return;
 		ClientAnalyze(pdata, len - 1);
 		break;
 	}
 	case STOC_ERROR_MSG: {
-		STOC_ErrorMsg* pkt = (STOC_ErrorMsg*)pdata;
+		if (len < 1 + (int)sizeof(STOC_ErrorMsg))
+			return;
+		STOC_ErrorMsg packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		switch(pkt->msg) {
 		case ERRMSG_JOINERROR: {
 			mainGame->btnCreateHost->setEnabled(true);
@@ -358,7 +369,11 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_HAND_RESULT: {
-		STOC_HandResult* pkt = (STOC_HandResult*)pdata;
+		if (len < 1 + (int)sizeof(STOC_HandResult))
+			return;
+		STOC_HandResult packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		mainGame->stHintMsg->setVisible(false);
 		mainGame->showcardcode = (pkt->res1 - 1) + ((pkt->res2 - 1) << 16);
 		mainGame->showcarddif = 50;
@@ -413,6 +428,8 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_DECK_COUNT: {
+		if (len < 1 + (int)sizeof(int16_t) * 6)
+			return;
 		mainGame->gMutex.lock();
 		int deckc = BufferIO::ReadInt16(pdata);
 		int extrac = BufferIO::ReadInt16(pdata);
@@ -426,7 +443,11 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_JOIN_GAME: {
-		STOC_JoinGame* pkt = (STOC_JoinGame*)pdata;
+		if (len < 1 + (int)sizeof(STOC_JoinGame))
+			return;
+		STOC_JoinGame packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		std::wstring str;
 		wchar_t msgbuf[256];
 		myswprintf(msgbuf, L"%ls%ls\n", dataManager.GetSysString(1226), deckManager.GetLFListName(pkt->info.lflist));
@@ -505,7 +526,11 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_TYPE_CHANGE: {
-		STOC_TypeChange* pkt = (STOC_TypeChange*)pdata;
+		if (len < 1 + (int)sizeof(STOC_TypeChange))
+			return;
+		STOC_TypeChange packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		if(!mainGame->dInfo.isTag) {
 			selftype = pkt->type & 0xf;
 			is_host = ((pkt->type >> 4) & 0xf) != 0;
@@ -692,6 +717,8 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_REPLAY: {
+		if (len < 1 + (int)sizeof(ReplayHeader))
+			return;
 		mainGame->gMutex.lock();
 		mainGame->wPhase->setVisible(false);
 		if(mainGame->dInfo.player_type < 7)
@@ -699,7 +726,7 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		mainGame->CloseGameButtons();
 		auto prep = pdata;
 		Replay new_replay;
-		memcpy(&new_replay.pheader, prep, sizeof(ReplayHeader));
+		std::memcpy(&new_replay.pheader, prep, sizeof(new_replay.pheader));
 		time_t starttime;
 		if (new_replay.pheader.flag & REPLAY_UNIFORM)
 			starttime = new_replay.pheader.start_time;
@@ -728,7 +755,7 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		}
 		if(mainGame->actionParam || !is_host) {
 			prep += sizeof(ReplayHeader);
-			memcpy(new_replay.comp_data, prep, len - sizeof(ReplayHeader) - 1);
+			std::memcpy(new_replay.comp_data, prep, len - sizeof(ReplayHeader) - 1);
 			new_replay.comp_size = len - sizeof(ReplayHeader) - 1;
 			if(mainGame->actionParam)
 				new_replay.SaveReplay(mainGame->ebRSName->getText());
@@ -738,7 +765,11 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_TIME_LIMIT: {
-		STOC_TimeLimit* pkt = (STOC_TimeLimit*)pdata;
+		if (len < 1 + (int)sizeof(STOC_TimeLimit))
+			return;
+		STOC_TimeLimit packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		int lplayer = mainGame->LocalPlayer(pkt->player);
 		if(lplayer == 0)
 			DuelClient::SendPacketToServer(CTOS_TIME_CONFIRM);
@@ -747,8 +778,16 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_CHAT: {
-		STOC_Chat* pkt = (STOC_Chat*)pdata;
-		int player = pkt->player;
+		const int chat_msg_size = len - 1 - sizeof(uint16_t);
+		if (!check_msg_size(chat_msg_size))
+			return;
+		uint16_t chat_player_type = buffer_read<uint16_t>(pdata);
+		uint16_t chat_msg[LEN_CHAT_MSG];
+		buffer_read_block(pdata, chat_msg, chat_msg_size);
+		const int chat_msg_len = chat_msg_size / sizeof(uint16_t);
+		if (chat_msg[chat_msg_len - 1] != 0)
+			return;
+		int player = chat_player_type;
 		auto play_sound = false;
 		if(player < 4) {
 			if(mainGame->chkIgnore1->isChecked())
@@ -768,19 +807,25 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 				player = 10;
 			}
 		}
-		wchar_t msg[256];
-		BufferIO::CopyWStr(pkt->msg, msg, 256);
+		// UTF-16 to wchar_t
+		wchar_t msg[LEN_CHAT_MSG];
+		BufferIO::CopyWStr(chat_msg, msg, LEN_CHAT_MSG);
 		mainGame->gMutex.lock();
 		mainGame->AddChatMsg(msg, player, play_sound);
 		mainGame->gMutex.unlock();
 		break;
 	}
 	case STOC_HS_PLAYER_ENTER: {
+		if (len < 1 + STOC_HS_PlayerEnter_size)
+			return;
 		soundManager.PlaySoundEffect(SOUND_PLAYER_ENTER);
-		STOC_HS_PlayerEnter* pkt = (STOC_HS_PlayerEnter*)pdata;
+		STOC_HS_PlayerEnter packet;
+		std::memcpy(&packet, pdata, STOC_HS_PlayerEnter_size);
+		auto pkt = &packet;
 		if(pkt->pos > 3)
 			break;
 		wchar_t name[20];
+		BufferIO::NullTerminate(pkt->name);
 		BufferIO::CopyWStr(pkt->name, name, 20);
 		if(mainGame->dInfo.isTag) {
 			if(pkt->pos == 0)
@@ -808,7 +853,11 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_HS_PLAYER_CHANGE: {
-		STOC_HS_PlayerChange* pkt = (STOC_HS_PlayerChange*)pdata;
+		if (len < 1 + (int)sizeof(STOC_HS_PlayerChange))
+			return;
+		STOC_HS_PlayerChange packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		unsigned char pos = (pkt->status >> 4) & 0xf;
 		unsigned char state = pkt->status & 0xf;
 		if(pos > 3)
@@ -816,7 +865,7 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		mainGame->gMutex.lock();
 		if(state < 8) {
 			soundManager.PlaySoundEffect(SOUND_PLAYER_ENTER);
-			wchar_t* prename = (wchar_t*)mainGame->stHostPrepDuelist[pos]->getToolTipText().c_str();
+			const wchar_t* prename = mainGame->stHostPrepDuelist[pos]->getToolTipText().c_str();
 			if(mainGame->gameConf.hide_player_name)
 				mainGame->stHostPrepDuelist[state]->setText(L"[********]");
 			else
@@ -868,7 +917,11 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		break;
 	}
 	case STOC_HS_WATCH_CHANGE: {
-		STOC_HS_WatchChange* pkt = (STOC_HS_WatchChange*)pdata;
+		if (len < 1 + (int)sizeof(STOC_HS_WatchChange))
+			return;
+		STOC_HS_WatchChange packet;
+		std::memcpy(&packet, pdata, sizeof packet);
+		const auto* pkt = &packet;
 		watching = pkt->watch_count;
 		wchar_t watchbuf[32];
 		myswprintf(watchbuf, L"%ls%d", dataManager.GetSysString(1253), watching);
@@ -881,6 +934,7 @@ void DuelClient::HandleSTOCPacketLan(unsigned char* data, unsigned int len) {
 		if(!mainGame->dField.tag_surrender)
 			mainGame->dField.tag_teammate_surrender = true;
 		mainGame->btnLeaveGame->setText(dataManager.GetSysString(1355));
+		break;
 	}
 	}
 }
@@ -890,7 +944,7 @@ int DuelClient::ClientAnalyze(unsigned char* msg, unsigned int len) {
 	wchar_t textBuffer[256];
 	mainGame->dInfo.curMsg = BufferIO::ReadUInt8(pbuf);
 	if(mainGame->dInfo.curMsg != MSG_RETRY) {
-		memcpy(last_successful_msg, msg, len);
+		std::memcpy(last_successful_msg, msg, len);
 		last_successful_msg_length = len;
 	}
 	mainGame->dField.HideMenu();
@@ -1461,7 +1515,7 @@ int DuelClient::ClientAnalyze(unsigned char* msg, unsigned int len) {
 			myswprintf(ynbuf, dataManager.GetSysString(221), dataManager.FormatLocation(l, s), dataManager.GetName(code));
 			myswprintf(textBuffer, L"%ls\n%ls\n%ls", event_string, ynbuf, dataManager.GetSysString(223));
 			mainGame->wQuery->setSkinColor(EGDC_ACTIVE_BORDER, SCOLOR_LIGHT_YELLOW);
-		} else if(desc < 2048) {
+		} else if(desc <= MAX_STRING_ID) {
 			myswprintf(textBuffer, dataManager.GetSysString(desc), dataManager.GetName(code));
 		} else {
 			myswprintf(textBuffer, dataManager.GetDesc(desc), dataManager.GetName(code));
@@ -3978,13 +4032,13 @@ void DuelClient::SwapField() {
 	is_swapping = true;
 }
 void DuelClient::SetResponseI(int respI) {
-	*((int*)response_buf) = respI;
+	std::memcpy(response_buf, &respI, sizeof respI);
 	response_len = 4;
 }
 void DuelClient::SetResponseB(void* respB, unsigned int len) {
 	if (len > SIZE_RETURN_VALUE)
 		len = SIZE_RETURN_VALUE;
-	memcpy(response_buf, respB, len);
+	std::memcpy(response_buf, respB, len);
 	response_len = len;
 }
 void DuelClient::SendResponse() {
@@ -4064,7 +4118,8 @@ void DuelClient::BeginRefreshHost() {
 	for(int i = 0; i < 8; ++i) {
 		if(host->h_addr_list[i] == 0)
 			break;
-		unsigned int local_addr = *(unsigned int*)host->h_addr_list[i];
+		unsigned int local_addr = 0;
+		std::memcpy(&local_addr, host->h_addr_list[i], sizeof local_addr);
 		local.sin_addr.s_addr = local_addr;
 		SOCKET sSend = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		if(sSend == INVALID_SOCKET)
@@ -4100,7 +4155,9 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void * arg) {
 		socklen_t sz = sizeof(sockaddr_in);
 		char buf[256];
 		/*int ret = */recvfrom(fd, buf, 256, 0, (sockaddr*)&bc_addr, &sz);
-		HostPacket* pHP = (HostPacket*)buf;
+		HostPacket packet;
+		std::memcpy(&packet, buf, sizeof packet);
+		HostPacket* pHP = &packet;
 		if(is_closing || pHP->identifier != NETWORK_SERVER_ID)
 			return;
 		if(pHP->version != PRO_VERSION)
