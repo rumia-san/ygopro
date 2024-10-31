@@ -1749,7 +1749,7 @@ void DeckBuilder::SearchBigCardSet()
 		return;
 
 	const uint16_t* setcode = cd.setcode;
-	if (cd.alias && dataManager.GetCodePointer(cd.alias) != dataManager.datas_end) {
+	if (cd.alias && dataManager.GetCodePointer(cd.alias) != dataManager.datas_end()) {
 		auto target = dataManager.GetCodePointer(cd.alias);
 		setcode = target->second.setcode;
 	}
